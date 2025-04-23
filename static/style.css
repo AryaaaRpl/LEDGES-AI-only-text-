@@ -1,0 +1,135 @@
+/* styles.css */
+* {
+    font-family: 'Poppins';
+}
+/* Global Styling */
+body {
+    /* Background bergaya digital atau circuit board */
+    background: linear-gradient(45deg, #00bcd4, #008f8f), url('https://cdn.pixabay.com/photo/2018/05/01/19/17/technology-3366583_960_720.jpg') no-repeat center center fixed;
+    background-size: cover; /* Pastikan gambar background menutupi seluruh layar */
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh; /* Agar background menutupi seluruh layar */
+  }
+  
+  /* Navbar */
+  .navbar {
+    background-color: rgba(0, 0, 0, 0.7); /* Transparansi hitam untuk navbar */
+    color: #fff;
+    padding: 15px 0;
+  }
+  
+  .navbar .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+  }
+  
+  .navbar .navbar-brand {
+    font-size: 24px;
+    font-weight: 600;
+  }
+  
+  .navbar .navbar-links {
+    display: flex;
+  }
+  
+  .navbar .btn-clear-history {
+    background-color: #ff4c4c;
+    color: #fff;
+    padding: 8px 15px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  .navbar .btn-clear-history:hover {
+    background-color: #e43f3f;
+  }
+  
+  /* Chatbox Styling */
+  .chat-container {
+    max-width: 800px;
+    margin: 50px auto;
+    background-color: rgba(255, 255, 255, 0.9); /* Semi transparan untuk latar belakang */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Chat History Styling */
+  .chat-history {
+    max-height: 400px;
+    overflow-y: scroll;
+    margin-bottom: 20px;
+  }
+  
+  .chat-history .user {
+    background-color: #4CAF50;
+    color: white;
+    max-width: 70%;
+    padding: 10px;
+    margin: 5px;
+    border-radius: 20px;
+    align-self: flex-start;
+    display: inline-block;
+  }
+  
+  .chat-history .assistant {
+    background-color: #3498db;
+    color: white;
+    max-width: 70%;
+    padding: 10px;
+    margin: 5px;
+    border-radius: 20px;
+    align-self: flex-end;
+    display: inline-block;
+  }
+  
+  /* Chat Input Styling */
+  .chat-input {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .chat-input input {
+    width: 80%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  
+  .chat-input button {
+    width: 15%;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .chat-input button:hover {
+    background-color: #45a049;
+  }
+  
+  /* Button to Clear History */
+  .navbar .btn-clear-history {
+    background-color: #ff4c4c;
+    color: #fff;
+    padding: 8px 15px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  .navbar .btn-clear-history:hover {
+    background-color: #e43f3f;
+  }
+  
