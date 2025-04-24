@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 import os
 import requests
 import re
+from markdown import markdown
+import re
 
 load_dotenv()
 
@@ -15,6 +17,11 @@ MODEL = "gemma2-9b-it"  # ubah jika model sebelumnya error
 @app.route("/")
 def index():
     return render_template("index.html")
+
+def is_code_related(text):
+    keywords = ["code", "coding", "python", "html", "css", "javascript", "js", "java", "program", "script"]
+    return any(keyword in text.lower() for keyword in keywords)
+
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -49,8 +56,25 @@ def chat():
 
     try:
         result = response.json()
+        bot_reply = markdown(result["choices"][0]["message"]["content"])
+        bot_reply = re.sub(r"\n{2,}", "\n", bot_reply.strip())
+        raw_reply = result["choices"][0]["message"]["content"]
+        clean_reply = re.sub(r"[`*]", "", raw_reply) 
+        html_reply = markdown(clean_reply)
+        return jsonify({"reply": clean_reply})
+
+    except Exception as e:
+        return jsonify({
+            "reply": "Gagal memproses respon dari API.",
+            "details": str(e),
+            "raw": response.text
+        }), 500
+         
+    try:
+        result = response.json()
         bot_reply = result["choices"][0]["message"]["content"]
         bot_reply = re.sub(r"\n{2,}", "\n", bot_reply.strip())
+        code_related = is_code_related(user_message)
     except Exception as e:
         return jsonify({
             "reply": "Gagal memproses respon dari API.",
@@ -58,7 +82,11 @@ def chat():
             "raw": response.text
         }), 500
 
-    return jsonify({"reply": bot_reply})
+    return jsonify({
+        "reply": bot_reply,
+        "is_code": code_related
+    })
+
 
 if __name__ == "__main__":
     app.run(debug=True)

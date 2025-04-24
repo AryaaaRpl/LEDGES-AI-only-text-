@@ -1,113 +1,80 @@
-// script.js
-
 const chatHistoryContainer = document.getElementById("chatHistory");
-const sendMessageBtn = document.getElementById("sendMessageBtn");
 const userMessageInput = document.getElementById("userMessage");
-const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+const botSound = document.getElementById("botSound");
+let history = JSON.parse(localStorage.getItem("chatHistory")) || [];
 
-let history = []; // Array to hold the message history
+// Load history saat halaman dibuka
+window.onload = () => {
+  updateChatHistory(history);
+};
 
-// Function to append messages to the chat
 function appendMessage(role, content) {
-  const messageDiv = document.createElement("div");
-  messageDiv.classList.add(role);
-  messageDiv.textContent = content;
-  chatHistoryContainer.appendChild(messageDiv);
+  const div = document.createElement("div");
+  div.classList.add(role === "user" ? "user" : "assistant");
+
+  // Jika mengandung kode markdown
+  if (/```[\s\S]*?```/.test(content)) {
+    const parts = content.split(/```(?:\w+)?/g);
+    div.innerHTML = `<div>${parts[0].trim()}</div><pre><code>${parts[1]?.replace("```", "").trim()}</code></pre>`;
+  } else {
+    div.textContent = content;
+  }
+
+  chatHistoryContainer.appendChild(div);
+  chatHistoryContainer.scrollTop = chatHistoryContainer.scrollHeight;
 }
 
-// Send message to server
-sendMessageBtn.addEventListener("click", async () => {
-  const userMessage = userMessageInput.value;
-  
-  if (!userMessage.trim()) return; // Prevent sending empty messages
+function typeText(element, text, delay = 20) {
+  let i = 0;
+  function typing() {
+    if (i < text.length) {
+      element.textContent += text.charAt(i);
+      i++;
+      setTimeout(typing, delay);
+    }
+  }
+  typing();
+}
 
-  history.push({ role: "user", content: userMessage });  // Add to history
+// ✅ Fungsi kirim pesan (dipanggil dari onclick)
+function sendMessage() {
+  const userMessage = userMessageInput.value.trim();
+  if (!userMessage) return;
+
   appendMessage("user", userMessage);
-  
-  userMessageInput.value = "";  // Clear input field
+  history.push({ role: "user", content: userMessage });
+  userMessageInput.value = "";
 
-  const response = await fetch("/chat", {
+  fetch("/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ message: userMessage, history })
-  });
-  
-  const data = await response.json();
-  
-  if (data.reply) {
-    history.push({ role: "assistant", content: data.reply });  // Add bot reply to history
-    appendMessage("assistant", data.reply);
-  }
-});
-
-// Clear history
-clearHistoryBtn.addEventListener("click", () => {
-  history = [];  // Reset history
-  chatHistoryContainer.innerHTML = "";  // Clear chat history from UI
-});
-
-// script.js
-
-// Memuat history dari localStorage jika ada
-window.onload = function () {
-    const history = JSON.parse(localStorage.getItem('chatHistory')) || [];
-    updateChatHistory(history);
-  };
-  
-  // Mengirim pesan
-  function sendMessage() {
-    const userMessage = document.getElementById('userMessage').value;
-    if (userMessage.trim() === "") return;  // Jangan kirim pesan kosong
-  
-    const history = JSON.parse(localStorage.getItem('chatHistory')) || [];
-  
-    // Menambah pesan user ke dalam history
-    history.push({ role: 'user', content: userMessage });
-    updateChatHistory(history);
-  
-    // Mengirim pesan ke server
-    fetch('/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        message: userMessage,
-        history: history,
-      }),
-    })
-    .then(response => response.json())
+  })
+    .then(res => res.json())
     .then(data => {
-      // Menambahkan balasan bot ke dalam history
-      history.push({ role: 'assistant', content: data.reply });
-      updateChatHistory(history);
-  
-      // Menyimpan history di localStorage
-      localStorage.setItem('chatHistory', JSON.stringify(history));
+      const botDiv = document.createElement("div");
+      botDiv.classList.add("assistant");
+      chatHistoryContainer.appendChild(botDiv);
+      typeText(botDiv, data.reply);
+      history.push({ role: "assistant", content: data.reply });
+      localStorage.setItem("chatHistory", JSON.stringify(history));
+      if (botSound) botSound.play();
     })
-    .catch(error => console.error('Error:', error));
-    
-    // Mengosongkan input message
-    document.getElementById('userMessage').value = '';
-  }
-  
-  // Menampilkan history chat di halaman
-  function updateChatHistory(history) {
-    const chatHistoryDiv = document.getElementById('chatHistory');
-    chatHistoryDiv.innerHTML = '';  // Bersihkan history lama
-  
-    // Menambahkan pesan dari history
-    history.forEach(msg => {
-      const div = document.createElement('div');
-      div.classList.add(msg.role);
-      div.textContent = msg.content;
-      chatHistoryDiv.appendChild(div);
+    .catch(err => {
+      appendMessage("assistant", "⚠️ Terjadi kesalahan.");
+      console.error(err);
     });
-  }
-  
-  // Menghapus history chat
-  function clearHistory() {
-    localStorage.removeItem('chatHistory');
-    updateChatHistory([]);
-  }
-  
+}
+
+function updateChatHistory(chat) {
+  chatHistoryContainer.innerHTML = "";
+  chat.forEach(msg => {
+    appendMessage(msg.role, msg.content);
+  });
+}
+
+function clearHistory() {
+  localStorage.removeItem("chatHistory");
+  history = [];
+  chatHistoryContainer.innerHTML = "";
+}
