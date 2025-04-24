@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 API_KEY = os.getenv("GROQ_API_KEY")
 API_URL = "https://api.groq.com/openai/v1/chat/completions"
-MODEL = "gemma2-9b-it"  # ubah jika model sebelumnya error
+MODEL = "compound-beta" # ubah jika model sebelumnya error
 
 @app.route("/")
 def index():
