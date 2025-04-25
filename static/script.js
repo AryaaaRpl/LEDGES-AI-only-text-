@@ -3,7 +3,6 @@ const userMessageInput = document.getElementById("userMessage");
 const botSound = document.getElementById("botSound");
 let history = JSON.parse(localStorage.getItem("chatHistory")) || [];
 
-// Load history saat halaman dibuka
 window.onload = () => {
   updateChatHistory(history);
 };
@@ -12,31 +11,26 @@ function appendMessage(role, content) {
   const div = document.createElement("div");
   div.classList.add(role === "user" ? "user" : "assistant");
 
-  // Jika mengandung kode markdown
+  // Deteksi jika ada kode dalam ```...```
   if (/```[\s\S]*?```/.test(content)) {
     const parts = content.split(/```(?:\w+)?/g);
-    div.innerHTML = `<div>${parts[0].trim()}</div><pre><code>${parts[1]?.replace("```", "").trim()}</code></pre>`;
+    const mainText = parts[0].trim();
+    const codeBlock = parts[1]?.replace("```", "").trim();
+
+    div.innerHTML = `
+      <div class="message-text">${mainText}</div>
+      <pre><code>${codeBlock}</code></pre>
+      <button class="copy-btn" onclick="copyToClipboard(this)">Salin</button>
+    `;
   } else {
-    div.textContent = content;
+    div.innerHTML = `<div class="message-text">${content}</div>`;
   }
 
+  div.classList.add("fade-in");
   chatHistoryContainer.appendChild(div);
   chatHistoryContainer.scrollTop = chatHistoryContainer.scrollHeight;
 }
 
-function typeText(element, text, delay = 20) {
-  let i = 0;
-  function typing() {
-    if (i < text.length) {
-      element.textContent += text.charAt(i);
-      i++;
-      setTimeout(typing, delay);
-    }
-  }
-  typing();
-}
-
-// ✅ Fungsi kirim pesan (dipanggil dari onclick)
 function sendMessage() {
   const userMessage = userMessageInput.value.trim();
   if (!userMessage) return;
@@ -48,27 +42,33 @@ function sendMessage() {
   fetch("/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message: userMessage, history })
+    body: JSON.stringify({ message: userMessage, history }),
   })
-    .then(res => res.json())
-    .then(data => {
-      const botDiv = document.createElement("div");
-      botDiv.classList.add("assistant");
-      chatHistoryContainer.appendChild(botDiv);
-      typeText(botDiv, data.reply);
-      history.push({ role: "assistant", content: data.reply });
+    .then((res) => res.json())
+    .then((data) => {
+      const botReply = data.reply;
+      appendMessage("assistant", botReply);
+      history.push({ role: "assistant", content: botReply });
       localStorage.setItem("chatHistory", JSON.stringify(history));
       if (botSound) botSound.play();
     })
-    .catch(err => {
+    .catch((err) => {
       appendMessage("assistant", "⚠️ Terjadi kesalahan.");
       console.error(err);
     });
 }
 
+function copyToClipboard(button) {
+  const code = button.previousElementSibling.textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    button.textContent = "Tersalin!";
+    setTimeout(() => (button.textContent = "Salin"), 2000);
+  });
+}
+
 function updateChatHistory(chat) {
   chatHistoryContainer.innerHTML = "";
-  chat.forEach(msg => {
+  chat.forEach((msg) => {
     appendMessage(msg.role, msg.content);
   });
 }
@@ -78,3 +78,97 @@ function clearHistory() {
   history = [];
   chatHistoryContainer.innerHTML = "";
 }
+
+// Enter key support
+userMessageInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    sendMessage();
+  }
+});
+const chatHistoryContainer = document.getElementById("chatHistory");
+const userMessageInput = document.getElementById("userMessage");
+const botSound = document.getElementById("botSound");
+let history = JSON.parse(localStorage.getItem("chatHistory")) || [];
+
+window.onload = () => {
+  updateChatHistory(history);
+};
+
+function appendMessage(role, content) {
+  const div = document.createElement("div");
+  div.classList.add(role === "user" ? "user" : "assistant");
+
+  // Deteksi jika ada kode dalam ```...```
+  if (/```[\s\S]*?```/.test(content)) {
+    const parts = content.split(/```(?:\w+)?/g);
+    const mainText = parts[0].trim();
+    const codeBlock = parts[1]?.replace("```", "").trim();
+
+    div.innerHTML = `
+      <div class="message-text">${mainText}</div>
+      <pre><code>${codeBlock}</code></pre>
+      <button class="copy-btn" onclick="copyToClipboard(this)">Salin</button>
+    `;
+  } else {
+    div.innerHTML = `<div class="message-text">${content}</div>`;
+  }
+
+  div.classList.add("fade-in");
+  chatHistoryContainer.appendChild(div);
+  chatHistoryContainer.scrollTop = chatHistoryContainer.scrollHeight;
+}
+
+function sendMessage() {
+  const userMessage = userMessageInput.value.trim();
+  if (!userMessage) return;
+
+  appendMessage("user", userMessage);
+  history.push({ role: "user", content: userMessage });
+  userMessageInput.value = "";
+
+  fetch("/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: userMessage, history }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      const botReply = data.reply;
+      appendMessage("assistant", botReply);
+      history.push({ role: "assistant", content: botReply });
+      localStorage.setItem("chatHistory", JSON.stringify(history));
+      if (botSound) botSound.play();
+    })
+    .catch((err) => {
+      appendMessage("assistant", "⚠️ Terjadi kesalahan.");
+      console.error(err);
+    });
+}
+
+function copyToClipboard(button) {
+  const code = button.previousElementSibling.textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    button.textContent = "Tersalin!";
+    setTimeout(() => (button.textContent = "Salin"), 2000);
+  });
+}
+
+function updateChatHistory(chat) {
+  chatHistoryContainer.innerHTML = "";
+  chat.forEach((msg) => {
+    appendMessage(msg.role, msg.content);
+  });
+}
+
+function clearHistory() {
+  localStorage.removeItem("chatHistory");
+  history = [];
+  chatHistoryContainer.innerHTML = "";
+}
+
+// Enter key support
+userMessageInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    sendMessage();
+  }
+});
