@@ -16,10 +16,10 @@
   <div class="navbar">
     <div class="container">
       <div class="navbar-brand">LEDGES AI</div>
-      <label class="switch">
+      <label class="theme-toggle">
         <input type="checkbox" id="themeToggle" onchange="toggleTheme()">
-        <span class="slider round"></span>
-      </label>      
+        <span class="slider"></span>
+      </label>           
       <button class="btn-clear-history" onclick="clearHistory()">Hapus History</button>
     </div>
   </div>
@@ -38,10 +38,11 @@
 
   <script src="/static/script.js"></script>
   <script>
-    function toggleTheme() {
-      document.body.classList.toggle('light-theme');
-    }
-  </script>
+function toggleTheme() {
+  document.body.classList.toggle('light-theme');
+}
+</script>
+
   
   <footer style="color: white; text-align: center; margin-top: 0;">&copy; Created By Aryaaa</footer>
 </body>
