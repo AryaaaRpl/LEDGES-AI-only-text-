@@ -1,4 +1,3 @@
-
 const chatHistoryContainer = document.getElementById("chatHistory");
 const userMessageInput = document.getElementById("userMessage");
 const botSound = document.getElementById("botSound");
@@ -13,6 +12,7 @@ function appendMessage(role, content) {
   div.classList.add(role === "user" ? "user" : "assistant");
 
   if (/```[\s\S]*?```/.test(content)) {
+    // Jika ada blok kode
     const parts = content.split(/```(?:\w+)?/g);
     const mainText = parts[0].trim();
     const codeBlock = parts[1]?.replace("```", "").trim();
@@ -22,7 +22,17 @@ function appendMessage(role, content) {
       <pre><code>${codeBlock}</code></pre>
       <button class="copy-btn" onclick="copyToClipboard(this)">Salin</button>
     `;
+  } else if (/^(\d+\.\s)/m.test(content)) {
+    // Jika ada pola list 1. 2. 3.
+    const lines = content.split('\n').filter(line => line.trim() !== '');
+    let listHTML = '<ol>';
+    lines.forEach(line => {
+      listHTML += `<li>${line.replace(/^\d+\.\s*/, '')}</li>`;
+    });
+    listHTML += '</ol>';
+    div.innerHTML = `<div class="message-text">${listHTML}</div>`;
   } else {
+    // Kalau biasa
     div.innerHTML = `<div class="message-text">${content}</div>`;
   }
 
@@ -84,3 +94,13 @@ userMessageInput.addEventListener("keypress", (e) => {
     sendMessage();
   }
 });
+
+function isProbablyList(text) {
+  const lines = text.split('\n').filter(line => line.trim() !== '');
+  const listPattern = /^\d+\.\s/;
+  let count = 0;
+  lines.forEach(line => {
+    if (listPattern.test(line)) count++;
+  });
+  return count >= 2; 
+}
