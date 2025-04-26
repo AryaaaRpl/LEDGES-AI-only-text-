@@ -429,16 +429,58 @@ body.light-theme .chat-input input {
 .chat-input button:hover {
   background-color: #2bbbad;
 }
+.message-text ol, .message-text ul {
+  margin-left: 20px;
+  padding-left: 20px;
+}
+
+.message-text li {
+  margin-bottom: 8px;
+  line-height: 1.6;
+  font-size: 1rem;
+  word-break: break-word;
+  position: relative;
+  padding-left: 10px;
+}
+
+/* Warna nomor list */
+.message-text ol li::marker, 
+.message-text ul li::marker {
+  color: #26a69a; /* Warna aksen hijau kebiruan */
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+/* Untuk Mobile (Responsif) */
+@media screen and (max-width: 600px) {
+  .message-text li {
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+    line-height: 1.7;
+  }
+
+  .message-text ol, .message-text ul {
+    margin-left: 18px;
+    padding-left: 18px;
+  }
+
+  .message-text ol li::marker, 
+  .message-text ul li::marker {
+    font-size: 1rem;
+  }
+}
+
 
 /* Mobile Responsiveness */
 @media screen and (max-width: 600px) {
   .chat-history .user,
   .chat-history .assistant {
-    max-width: 90%;
-    font-size: 0.95rem;
-    line-height: 1.5;
-    padding: 12px 14px;
+    max-width: 100%; /* 100% lebar layar */
+    font-size: 1rem;
+    line-height: 1.6;
+    padding: 14px 18px;
     word-wrap: break-word;
+    border-radius: 18px;
   }
 
   .chat-input input,
@@ -448,21 +490,26 @@ body.light-theme .chat-input input {
   }
 
   .chat-container {
-    margin: 10px;
-    padding: 15px;
+    margin: 5px;
+    padding: 10px;
   }
 
   .message-text {
-    font-size: 0.95rem;
+    font-size: 1rem;
   }
 
   pre {
-    font-size: 0.85rem;
-    padding: 0.8rem;
+    font-size: 0.9rem;
+    padding: 0.9rem;
   }
 
   .copy-btn {
-    font-size: 0.75rem;
-    padding: 6px 10px;
+    font-size: 0.8rem;
+    padding: 7px 12px;
   }
 }
+
+
+
+
+
