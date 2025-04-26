@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LEDGES AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <div class="navbar">
+    <div class="container">
+      <div class="navbar-brand">LEDGES AI</div>
+      <label class="switch">
+        <input type="checkbox" id="themeToggle" onchange="toggleTheme()">
+        <span class="slider round"></span>
+      </label>      
+      <button class="btn-clear-history" onclick="clearHistory()">Hapus History</button>
+    </div>
+  </div>
+
+  <!-- Chatbox -->
+  <div class="chat-container">
+    <div class="chat-history" id="chatHistory"></div>
+    <div class="chat-input">
+      <input type="text" id="userMessage" placeholder="Tanya Apapun..." />
+      <button onclick="sendMessage()">Kirim</button>
+    </div>
+  </div>
+
+
+  <audio id="botSound" src="/static/audio/typeSound.mp3" preload="auto"></audio>
+
+  <script src="/static/script.js"></script>
+  <script>
+    function toggleTheme() {
+      document.body.classList.toggle('light-theme');
+    }
+  </script>
+  
+  <footer style="color: white; text-align: center; margin-top: 0;">&copy; Created By Aryaaa</footer>
+</body>
+</html>
