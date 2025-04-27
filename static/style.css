@@ -552,3 +552,20 @@ input:checked + .slider:before {
     padding: 7px 12px;
   }
 }
+
+.assistant-coding {
+  background-color: #1e1e1e;
+  color: #00ff90;
+  font-family: 'Courier New', monospace;
+  align-self: flex-end;
+  max-width: 90%;
+  margin: 5px;
+  padding: 15px 20px;
+  border-radius: 20px 20px 5px 20px;
+  box-shadow: 0 0 12px #00ffc8;
+  word-wrap: break-word;
+}
+
+.message-text {
+  white-space: pre-wrap;
+}
