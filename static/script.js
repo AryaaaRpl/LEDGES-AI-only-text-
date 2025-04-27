@@ -7,35 +7,18 @@ window.onload = () => {
   updateChatHistory(history);
 };
 
-function appendMessage(role, content) {
+function appendMessage(role, content, isCoding = false) {
   const div = document.createElement("div");
-  div.classList.add(role === "user" ? "user" : "assistant");
 
-  if (/```[\s\S]*?```/.test(content)) {
-    // Jika ada blok kode
-    const parts = content.split(/```(?:\w+)?/g);
-    const mainText = parts[0].trim();
-    const codeBlock = parts[1]?.replace("```", "").trim();
-
-    div.innerHTML = `
-      <div class="message-text">${mainText}</div>
-      <pre><code>${codeBlock}</code></pre>
-      <button class="copy-btn" onclick="copyToClipboard(this)">Salin</button>
-    `;
-  } else if (/^(\d+\.\s)/m.test(content)) {
-    // Jika ada pola list 1. 2. 3.
-    const lines = content.split('\n').filter(line => line.trim() !== '');
-    let listHTML = '<ol>';
-    lines.forEach(line => {
-      listHTML += `<li>${line.replace(/^\d+\.\s*/, '')}</li>`;
-    });
-    listHTML += '</ol>';
-    div.innerHTML = `<div class="message-text">${listHTML}</div>`;
+  if (role === "user") {
+    div.classList.add("user");
+  } else if (isCoding) {
+    div.classList.add("assistant-coding");
   } else {
-    // Kalau biasa
-    div.innerHTML = `<div class="message-text">${content}</div>`;
+    div.classList.add("assistant");
   }
 
+  div.innerHTML = `<div class="message-text">${content}`;
   div.classList.add("fade-in");
   chatHistoryContainer.appendChild(div);
   chatHistoryContainer.scrollTop = chatHistoryContainer.scrollHeight;
@@ -54,25 +37,31 @@ function sendMessage() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ message: userMessage, history }),
   })
-    .then((res) => res.json())
-    .then((data) => {
-      const botReply = data.reply;
-      appendMessage("assistant", botReply);
-      history.push({ role: "assistant", content: botReply });
-      localStorage.setItem("chatHistory", JSON.stringify(history));
-      if (botSound) botSound.play();
-    })
-    .catch((err) => {
-      appendMessage("assistant", "⚠️ Terjadi kesalahan.");
-      console.error(err);
-    });
-}
+  .then((response) => {
+    if (!response.ok) {
+      throw new Error("Network response was not OK");
+    }
+    return response.json();
+  })
+  .then((data) => {
+    if (!data.reply) {
+      throw new Error("Server did not return 'reply'");
+    }
 
-function copyToClipboard(button) {
-  const code = button.previousElementSibling.textContent;
-  navigator.clipboard.writeText(code).then(() => {
-    button.textContent = "Tersalin!";
-    setTimeout(() => (button.textContent = "Salin"), 2000);
+    const botReply = data.reply;
+
+    // Cek apakah balasan AI berisi code (baru kasih style coding)
+    const isCodingReply = /```|function|def|{|\}/i.test(botReply);
+
+    appendMessage("assistant", botReply, isCodingReply);
+
+    history.push({ role: "assistant", content: botReply });
+    localStorage.setItem("chatHistory", JSON.stringify(history));
+    if (botSound) botSound.play();
+  })
+  .catch((err) => {
+    console.error("Error handling chat:", err);
+    appendMessage("assistant", "⚠️ Terjadi kesalahan saat menghubungi AI.");
   });
 }
 
@@ -94,13 +83,3 @@ userMessageInput.addEventListener("keypress", (e) => {
     sendMessage();
   }
 });
-
-function isProbablyList(text) {
-  const lines = text.split('\n').filter(line => line.trim() !== '');
-  const listPattern = /^\d+\.\s/;
-  let count = 0;
-  lines.forEach(line => {
-    if (listPattern.test(line)) count++;
-  });
-  return count >= 2; 
-}
