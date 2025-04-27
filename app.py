@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 API_KEY = os.getenv("GROQ_API_KEY")
 API_URL = "https://api.groq.com/openai/v1/chat/completions"
-MODEL = "compound-beta" # ubah jika model sebelumnya error
+MODEL = "meta-llama/llama-4-scout-17b-16e-instruct" # ubah jika model sebelumnya error
 
 @app.route("/")
 def index():
@@ -31,6 +31,8 @@ def chat():
     messages = [{"role": "system", "content": "Kamu adalah AI yang membantu dan ramah."}]
     messages += history
     messages.append({"role": "user", "content": user_message})
+    temperature = 0.6
+    max_completion_tokens = 2500
 
     headers = {
         "Authorization": f"Bearer {API_KEY}",
